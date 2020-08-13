@@ -5,7 +5,7 @@
 
 <button> testA </button>
 <?PHP
-echo shell_exec("python3 covid.py");
+echo shell_exec("python3 interface.py");
 ?>
 
 </head>
