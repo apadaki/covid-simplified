@@ -9,7 +9,7 @@ class DataGetter:
         # Store basic demographic data by state
         self.censusdata = []
         self.censusdatafields = []
-        with open('population.csv', 'r') as csvfile:
+        with open('general-data/population.csv', 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             self.censusdatafields = next(csvreader)
             index = 0
@@ -47,14 +47,13 @@ class DataGetter:
         self.covid_data = []
         daycount = 0
         while day_data.status_code == 200:
-            # print(day)
+            print(daycount)
             self.covid_data.append([])
             lines = day_data.text.split('\n')
             for i in range(1, len(lines)):
                 statedata = lines[i].split(',')
                 if len(statedata) > 1 and statedata[0] not in notstates:
                     self.covid_data[daycount].append(statedata)
-            print(len(self.covid_data))
             daycount+=1
             (month, day, year) = next_date(month, day, year)
             day_url = base_url + url_format(month, day, year) + '.csv'
