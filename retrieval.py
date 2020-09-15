@@ -47,7 +47,6 @@ class DataGetter:
         self.covid_data = []
         daycount = 0
         while day_data.status_code == 200:
-            print(daycount)
             self.covid_data.append([])
             lines = day_data.text.split('\n')
             for i in range(1, len(lines)):
@@ -57,39 +56,42 @@ class DataGetter:
             daycount+=1
             (month, day, year) = next_date(month, day, year)
             day_url = base_url + url_format(month, day, year) + '.csv'
-            day_data = requests.get(day_url, 'r')
-
-        # print(self.covid_data[0])
-        # CONFIRMED, HOSPITALIZATIONS, DEATHS, RECOVERED, ACTIVE, TESTED are important features
-        # ['Province_State', 'Country_Region', 'Last_Update', 'Lat', 'Long_', 'Confirmed', 'Deaths', 'Recovered', 'Active', 'FIPS', 'Incident_Rate', 'People_Tested', 'People_Hospitalized', 'Mortality_Rate', 'UID', 'ISO3', 'Testing_Rate', 'Hospitalization_Rate']
+            day_data = requests.get(day_url, 'r')        
         
-        
-        # for st in self.states:
-        #     x1, x2, y1, y2 = range(len(self.covid_data)), range(len(self.covid_data)), [], []
-        #     for i in range(len(self.covid_data)):
-        #         feature1_str = self.covid_data[i][self.state_dict.get(st, -1)][0]
-        #         feature2_str = self.covid_data[i][self.state_dict.get(st, -1)][1]
+    # Function to generate graph based on several input parameters and existing data
+    def state_image(self, state, feature1, feature2, out_filename):
+        output_dict = {
+            'Confirmed': 'Cases',
+            'Recovered': 'Cases Recovered',
+            'Active': 'Active Cases',
+            'People_Tested': 'People Tested',
+            'People_Hospitalized': 'Hospitalizations',
+            'Deaths': 'Deaths'
+        }
+        x1, x2, y1, y2 = range(len(self.covid_data)), range(len(self.covid_data)), [], []
+        for i in range(len(self.covid_data)):
+            feature1_str = self.covid_data[i][self.state_dict.get(state, -1)][self.field_dict.get(feature1,-1)]
+            feature2_str = self.covid_data[i][self.state_dict.get(state, -1)][self.field_dict.get(feature2,-1)]
 
-        #         if feature1_str == '':
-        #             feature1_num = y1[len(y1)-1] if len(y1) > 0 else 0
-        #         else: 
-        #             feature1_num = float(feature1_str)
-        #         if feature2_str == '':
-        #             feature2_num = y2[len(y2)-1] if len(y2) > 0 else 0
-        #         else:
-        #             feature2_num = float(feature2_str)
-        #         y1.append(feature1_num)
-        #         y2.append(feature2_num)
+            if feature1_str == '':
+                feature1_num = y1[len(y1)-1] if len(y1) > 0 else 0
+            else: 
+                feature1_num = float(feature1_str)
+            if feature2_str == '':
+                feature2_num = y2[len(y2)-1] if len(y2) > 0 else 0
+            else:
+                feature2_num = float(feature2_str)
+            y1.append(feature1_num)
+            y2.append(feature2_num)
 
-        #     max_value = max(max(y1), max(y2))
+        max_value = max(max(y1), max(y2))
 
-        #     plt.plot(x1,y1,label=feature1,color='blue')
-        #     plt.plot(x2,y2,label=feature2,color='red')
+        plt.plot(x1,y1,label=output_dict[feature1],color='blue')
+        plt.plot(x2,y2,label=output_dict[feature2],color='red')
 
-        #     plt.title(feature1 + ' vs. ' + feature2 + ' in ' + st)
-        #     plt.xlabel('Days after 4/12/20')
-        #     plt.legend()
-        #     plt.savefig('images/stategraphs/' + st.lower() + '.png')
+        plt.title(output_dict[feature1] + ' vs. ' + output_dict[feature2] + ' in ' + state)
+        plt.xlabel('Days after 4/12/20')
+        plt.legend()
+        plt.savefig(out_filename)
 
-        #     print(st)
-        #     plt.clf()
+        plt.clf()
